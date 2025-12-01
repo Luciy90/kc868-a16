@@ -1,0 +1,344 @@
+substitutions:
+  devicename: "kincony-a16"
+  friendly_name: "Kincony A16 Controller"
+
+esphome:
+  name: kc868-a16-a
+  friendly_name: KC868-A16-A
+  project:
+    name: "kincony.kc868-a16"
+    version: "1.0"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+# Логирование (через Serial и WiFi/Ethernet)
+logger:
+  level: DEBUG
+
+# API для связи с Home Assistant
+api:
+  encryption:
+    key: !secret api_encryption_key
+# Обновление "по воздуху"
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# --- НАСТРОЙКА СЕТИ (ETHERNET) ---
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  
+  clk: 
+    pin: GPIO17 
+    mode: CLK_OUT
+  
+  phy_addr: 0
+  power_pin: GPIO0
+  
+  manual_ip: 
+    static_ip: 192.168.0.99 
+    gateway: 192.168.0.1    
+    subnet: 255.255.255.0
+
+# --- I2C ШИНА (КРИТИЧЕСКИ ВАЖНО) ---
+# KC868-A16 использует I2C для управления реле и входами
+i2c:
+  sda: GPIO4
+  scl: GPIO5
+  scan: true # При старте в логах покажет найденные устройства
+  id: bus_a
+
+# Рекомендуется также добавить веб-сервер, чтобы видеть состояние
+# устройства в браузере по его IP, даже когда все работает нормально
+web_server:
+  port: 80
+    
+
+# --- КОМПОНЕНТЫ РАСШИРИТЕЛЕЙ (PCF8574) ---
+# Адреса могут быть 0x21, 0x22, 0x23, 0x24, 0x25, 0x26.
+# Проверьте логи после прошивки, если не работает.
+
+# Чип для ВХОДОВ 1-8
+pcf8574:
+  - id: 'pcf8574_inputs_1_8'
+    i2c_id: bus_a
+    address: 0x22 # Стандартный адрес для входов 1-8
+    pcf8575: false
+
+  # Чип для ВХОДОВ 9-16
+  - id: 'pcf8574_inputs_9_16'
+    i2c_id: bus_a
+    address: 0x21 # Стандартный адрес для входов 9-16
+    pcf8575: false
+
+  # Чип для РЕЛЕ 1-8
+  - id: 'pcf8574_relays_1_8'
+    i2c_id: bus_a
+    address: 0x24 # Стандартный адрес для реле 1-8
+    pcf8575: false
+
+  # Чип для РЕЛЕ 9-16
+  - id: 'pcf8574_relays_9_16'
+    i2c_id: bus_a
+    address: 0x25 # Стандартный адрес для реле 9-16
+    pcf8575: false
+
+# --- РЕЛЕ (SWITCHES) ---
+switch:
+  - platform: gpio
+    name: "Relay 1"
+    pin:
+      pcf8574: pcf8574_relays_1_8
+      number: 0
+      mode: OUTPUT
+      inverted: true # Обычно PCF инвертированы для реле (LOW = ON)
+  - platform: gpio
+    name: "Relay 2"
+    pin:
+      pcf8574: pcf8574_relays_1_8
+      number: 1
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 3"
+    pin:
+      pcf8574: pcf8574_relays_1_8
+      number: 2
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 4"
+    pin:
+      pcf8574: pcf8574_relays_1_8
+      number: 3
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 5"
+    pin:
+      pcf8574: pcf8574_relays_1_8
+      number: 4
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 6"
+    pin:
+      pcf8574: pcf8574_relays_1_8
+      number: 5
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 7"
+    pin:
+      pcf8574: pcf8574_relays_1_8
+      number: 6
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 8"
+    pin:
+      pcf8574: pcf8574_relays_1_8
+      number: 7
+      mode: OUTPUT
+      inverted: true
+
+  # Вторая группа реле (9-16)
+  - platform: gpio
+    name: "Relay 9"
+    pin:
+      pcf8574: pcf8574_relays_9_16
+      number: 0
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 10"
+    pin:
+      pcf8574: pcf8574_relays_9_16
+      number: 1
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 11"
+    pin:
+      pcf8574: pcf8574_relays_9_16
+      number: 2
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 12"
+    pin:
+      pcf8574: pcf8574_relays_9_16
+      number: 3
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 13"
+    pin:
+      pcf8574: pcf8574_relays_9_16
+      number: 4
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 14"
+    pin:
+      pcf8574: pcf8574_relays_9_16
+      number: 5
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 15"
+    pin:
+      pcf8574: pcf8574_relays_9_16
+      number: 6
+      mode: OUTPUT
+      inverted: true
+  - platform: gpio
+    name: "Relay 16"
+    pin:
+      pcf8574: pcf8574_relays_9_16
+      number: 7
+      mode: OUTPUT
+      inverted: true
+
+# --- ЦИФРОВЫЕ ВХОДЫ (BINARY SENSORS) ---
+binary_sensor:
+  - platform: gpio
+    name: "Input 1"
+    pin:
+      pcf8574: pcf8574_inputs_1_8
+      number: 0
+      mode: INPUT
+      inverted: true # Входы обычно замыкаются на землю (GND)
+  - platform: gpio
+    name: "Input 2"
+    pin:
+      pcf8574: pcf8574_inputs_1_8
+      number: 1
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 3"
+    pin:
+      pcf8574: pcf8574_inputs_1_8
+      number: 2
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 4"
+    pin:
+      pcf8574: pcf8574_inputs_1_8
+      number: 3
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 5"
+    pin:
+      pcf8574: pcf8574_inputs_1_8
+      number: 4
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 6"
+    pin:
+      pcf8574: pcf8574_inputs_1_8
+      number: 5
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 7"
+    pin:
+      pcf8574: pcf8574_inputs_1_8
+      number: 6
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 8"
+    pin:
+      pcf8574: pcf8574_inputs_1_8
+      number: 7
+      mode: INPUT
+      inverted: true
+
+  # Вторая группа входов (9-16)
+  - platform: gpio
+    name: "Input 9"
+    pin:
+      pcf8574: pcf8574_inputs_9_16
+      number: 0
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 10"
+    pin:
+      pcf8574: pcf8574_inputs_9_16
+      number: 1
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 11"
+    pin:
+      pcf8574: pcf8574_inputs_9_16
+      number: 2
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 12"
+    pin:
+      pcf8574: pcf8574_inputs_9_16
+      number: 3
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 13"
+    pin:
+      pcf8574: pcf8574_inputs_9_16
+      number: 4
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 14"
+    pin:
+      pcf8574: pcf8574_inputs_9_16
+      number: 5
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 15"
+    pin:
+      pcf8574: pcf8574_inputs_9_16
+      number: 6
+      mode: INPUT
+      inverted: true
+  - platform: gpio
+    name: "Input 16"
+    pin:
+      pcf8574: pcf8574_inputs_9_16
+      number: 7
+      mode: INPUT
+      inverted: true
+
+# --- ДОПОЛНИТЕЛЬНЫЕ ДАТЧИКИ ---
+sensor:
+  # Датчики температуры DS18B20 (подключены к GPIO)
+  # Обычно Kincony выводит их на отдельный разъем
+  - platform: dallas_temp
+    #address: 0x... # Узнаете адрес или оставить пустым для автоматического поиска
+    name: "Temperature Sensor"
+    update_interval: 60s
+    id: temp_sensor_1
+    disabled_by_default: false # Включите, если подключили датчик
+    # Системные сенсоры
+  - platform: uptime
+    name: "Uptime"
+# Драйвер для Dallas (OneWire)
+# --- КОНФИГУРАЦИЯ ONE WIRE (ДЛЯ DS18B20) ---
+one_wire:
+  # Используем OneWire как платформу для GPIO15
+  - platform: gpio
+    pin: GPIO15
